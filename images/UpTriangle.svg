@@ -1,0 +1,85 @@
+<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="500" height="433.012701892" version="1.1" xmlns="http://www.w3.org/2000/svg"><g id="base">
+<polygon points="0,433.012701892 250,0 500,433.012701892" id="a"/>
+</g>
+<script><![CDATA[
+document.getElementById('a').setAttribute('style', 'fill: rgb(' + Math.round(255*Math.random()) + ', ' + Math.round(255*Math.random()) + ', ' + Math.round(255*Math.random()) + '); stroke: rgb(0, 0, 0); stroke-width: 1;');
+
+function addChild(e){
+  var rightclick;
+  if (!e) var e = window.event;
+  if (e.which) rightclick = (e.which == 3);
+  else if (e.button) rightclick = (e.button == 2);
+  if(rightclick){
+    if(this.id!='a')
+      document.getElementById('base').removeChild(this);
+    return false;
+  }
+  var posx = 0;
+  var posy = 0;
+  if (!e) var e = window.event;
+  if (e.pageX || e.pageY) {
+    posx = e.pageX;
+    posy = e.pageY;
+  } else if (e.clientX || e.clientY) {
+    posx = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+    posy = e.clientY + document.body.scrollTop + document.documentElement.scrollTop; }
+  var v0 = new Array((this.points.getItem(2).x-this.points.getItem(1).x)/2, (this.points.getItem(2).y-this.points.getItem(1).y)/2);
+  var v1 = new Array((this.points.getItem(2).x-this.points.getItem(0).x)/2, (this.points.getItem(2).y-this.points.getItem(0).y)/2);
+  var v2 = new Array(posx - (this.points.getItem(0).x+this.points.getItem(1).x)/2, posy - (this.points.getItem(0).y+this.points.getItem(1).y)/2);
+  dot00 = dot(v0, v0);
+  dot01 = dot(v0, v1);
+  dot02 = dot(v0, v2);
+  dot11 = dot(v1, v1);
+  dot12 = dot(v1, v2);
+  invDenom = 1 / (dot00 * dot11 - dot01 * dot01)
+  u = (dot11 * dot02 - dot01 * dot12) * invDenom
+  v = (dot00 * dot12 - dot01 * dot02) * invDenom
+  if (u<0 && v>0){
+    //alert('outside');
+    newPoly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    newPoly.setAttribute('id', this.id + 'c');
+    newPoly.setAttribute('points', (this.points.getItem(0).x+this.points.getItem(1).x)/2 + ',' + (this.points.getItem(0).y+this.points.getItem(1).y)/2 + ' ' + this.points.getItem(1).x + ',' + this.points.getItem(1).y + ' ' + (this.points.getItem(1).x+this.points.getItem(2).x)/2 + ',' + (this.points.getItem(1).y+this.points.getItem(2).y)/2);
+    newPoly.setAttribute('style', 'fill: rgb(' + Math.round(255*Math.random()) + ', ' + Math.round(255*Math.random()) + ', ' + Math.round(255*Math.random()) + '); stroke: rgb(0, 0, 0); stroke-width: 1;');
+    newPoly.onmousedown = addChild;
+    document.getElementById('base').appendChild(newPoly);
+  } else if (u>0 && v<0) {
+    //alert('left');
+    newPoly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    newPoly.setAttribute('id', this.id + 'c');
+    newPoly.setAttribute('points', this.points.getItem(0).x + ',' + this.points.getItem(0).y + ' ' + (this.points.getItem(0).x+this.points.getItem(1).x)/2 + ',' + (this.points.getItem(0).y+this.points.getItem(1).y)/2 + ' ' + (this.points.getItem(0).x+this.points.getItem(2).x)/2 + ',' + (this.points.getItem(0).y+this.points.getItem(2).y)/2);
+    newPoly.setAttribute('style', 'fill: rgb(' + Math.round(255*Math.random()) + ', ' + Math.round(255*Math.random()) + ', ' + Math.round(255*Math.random()) + '); stroke: rgb(0, 0, 0); stroke-width: 1;');
+    newPoly.onmousedown = addChild;
+    document.getElementById('base').appendChild(newPoly);
+  } else if (u>0 && v>0) {
+    if(u+v>1) {
+      //alert('right');
+      newPoly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+      newPoly.setAttribute('id', this.id + 'c');
+      newPoly.setAttribute('points', (this.points.getItem(0).x+this.points.getItem(2).x)/2 + ',' + (this.points.getItem(0).y+this.points.getItem(2).y)/2 + ' ' + (this.points.getItem(1).x+this.points.getItem(2).x)/2 + ',' + (this.points.getItem(1).y+this.points.getItem(2).y)/2 + ' ' + this.points.getItem(2).x + ',' + this.points.getItem(2).y);
+      newPoly.setAttribute('style', 'fill: rgb(' + Math.round(255*Math.random()) + ', ' + Math.round(255*Math.random()) + ', ' + Math.round(255*Math.random()) + '); stroke: rgb(0, 0, 0); stroke-width: 1;');
+      newPoly.onmousedown = addChild;
+      document.getElementById('base').appendChild(newPoly);
+    } else {
+      //alert('center');
+      newPoly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+      newPoly.setAttribute('id', this.id + 'c');
+      newPoly.setAttribute('points', (this.points.getItem(0).x+this.points.getItem(1).x)/2 + ',' + (this.points.getItem(0).y+this.points.getItem(1).y)/2 + ' ' + (this.points.getItem(0).x+this.points.getItem(2).x)/2 + ',' + (this.points.getItem(0).y+this.points.getItem(2).y)/2 + ' ' + (this.points.getItem(1).x+this.points.getItem(2).x)/2 + ',' + (this.points.getItem(1).y+this.points.getItem(2).y)/2);
+      newPoly.setAttribute('style', 'fill: rgb(' + Math.round(255*Math.random()) + ', ' + Math.round(255*Math.random()) + ', ' + Math.round(255*Math.random()) + '); stroke: rgb(0, 0, 0); stroke-width: 1;');
+      newPoly.onmousedown = addChild;
+      document.getElementById('base').appendChild(newPoly);
+    }
+  } else {
+  }
+}
+
+
+function dot(vec1, vec2){
+  return vec1[0]*vec2[0] + vec1[1]*vec2[1];
+}
+
+window.oncontextmenu = function () { return false; }
+document.getElementById('a').onmousedown = addChild;
+]]></script>
+</svg>
+

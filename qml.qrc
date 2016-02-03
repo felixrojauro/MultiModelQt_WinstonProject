@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>UIStream2.qml</file>
+        <file>images/Black_triangle.svg</file>
+        <file>images/check.png</file>
+        <file>images/edit_gear.png</file>
+        <file>images/edit_wrench.png</file>
+        <file>images/eye.ico</file>
+        <file>images/menu.png</file>
+        <file>images/pencil.png</file>
+        <file>images/UpTriangle.svg</file>
+        <file>CompostionRow.qml</file>
+        <file>StreamPropertyRow.qml</file>
+    </qresource>
+</RCC>
