@@ -26,5 +26,7 @@ ApplicationWindow {
 //        anchors.centerIn: parent
 //    }
     UIStream2{
+
+		id: idStream
     }
 }

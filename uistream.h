@@ -10,7 +10,7 @@
 #include <string>
 #include <QHash>
 #include <QDebug>
-#include <QT>
+#include <Qt>
 #include <deque>
 
 //struct baseData {   // base data for most models
@@ -47,11 +47,12 @@ public:
         value,
         type,
         tooltip,
-        unitList
-    };
+		unitList
+	};
     explicit BaseModel(QObject *parent = 0);
     virtual int rowCount(const QModelIndex &parent) const;
     virtual QVariant data(const QModelIndex &index, int role) const;
+	bool setData( const QModelIndex& a_rIndex, const QVariant& a_rValue, int a_iRole );
     QHash<int, QByteArray> roleNames() const;
 
     BaseModel(const BaseModel &m);
@@ -66,9 +67,9 @@ public:
 class UIStream : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(BaseModel compbase READ compbase WRITE setCompbase NOTIFY compbaseChanged)
-    Q_PROPERTY(QVector<baseData> compModel READ compModel WRITE setCompModel NOTIFY compModelChanged)
-    Q_PROPERTY(BaseModel propModel READ propModel WRITE setPropModel NOTIFY propModelChanged)
+	Q_PROPERTY(BaseModel* compbase READ compbase WRITE setCompbase NOTIFY compbaseChanged)
+	Q_PROPERTY(BaseModel* compModel READ compModel WRITE setCompModel NOTIFY compModelChanged)
+	Q_PROPERTY(BaseModel* propModel READ propModel WRITE setPropModel NOTIFY propModelChanged)
     Q_PROPERTY(QString title READ title WRITE setTitle NOTIFY titleChanged)
 
 public:
@@ -76,14 +77,11 @@ public:
     ~UIStream();
     UIStream(const UIStream &s);
 //    TStream m_stream;         // My thermodynamic class
-    BaseModel m_compbase;    // Base model for all composition
-    BaseModel m_compModel;   // Model for composition
-    BaseModel m_propModel;   // Model for feed/combined properties
+	BaseModel* m_compbase;    // Base model for all composition
+	BaseModel* m_compModel;   // Model for composition
+	BaseModel* m_propModel;   // Model for feed/combined properties
     QString m_Title;
 
-//    virtual int rowCount(const QModelIndex &parent) const;
-//    virtual QVariant data(const QModelIndex &index, int role) const;
-//    QHash<int, QByteArray> roleNames() const;
     UIStream& operator=(const UIStream &m);
     enum UIStreamRoles {
         ecompbase = Qt::UserRole +1,
@@ -91,19 +89,20 @@ public:
         epropModel
     };
 
-    void loadCompModel();   //Functions to populate the Composition Model
-    void loadPropModel();   //Functions to populate the Property Model
+	Q_INVOKABLE void loadCompModel();   //Functions to populate the Composition Model
+	Q_INVOKABLE void loadCompBaseModel();	//Functions to populate the composition base model
+	Q_INVOKABLE void loadPropModel();   //Functions to populate the Property Model
     void UItoEngine();      //Send data from UI Model to Engine
     void EnginetoUI();      //Update UI from Engine
     double unitConversion_UI2E(QString type, double uivalue, int unitIndex);  // Convert UI values to engine basis
     double unitConversion_E2UI(QString type, int unitIndex);  // Convert Engine values to UI selected values
 
-    BaseModel compbase() const;
-    void setCompbase(const BaseModel &model);
-    QVector<baseData> compModel();
-    void setCompModel(const QVector<baseData> &model);
-    BaseModel propModel() const;
-    void setPropModel(const BaseModel &model);
+	BaseModel* compbase() const;
+	void setCompbase(BaseModel *model);
+	BaseModel* compModel();
+	void setCompModel(BaseModel *model);
+	BaseModel* propModel() const;
+	void setPropModel(BaseModel *model);
     QString title() const;
     void setTitle(const QString &string);
 

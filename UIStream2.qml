@@ -32,7 +32,16 @@ Rectangle {
     width: rowTotalWidth + 2*rowSpacing
     Behavior on rowTotalWidth {NumberAnimation {duration: 300}}
 
-    TStream { id: stream }  // Create C++ object
+	TStream {
+		id: stream
+
+		Component.onCompleted:
+		{
+			stream.loadCompBaseModel()
+			stream.loadPropModel()
+			stream.loadCompModel()
+		}
+	}  // Create C++ object
     //property var cmodel: stream.compModel
 
     Flickable {
@@ -51,35 +60,35 @@ Rectangle {
             Loader { sourceComponent: compositionSum }
             Repeater { // Create list of molecular compositions
                 id: compositionList
-//                model: stream.compModel // Would like to use C++ model
+				model: stream.compModel // Would like to use C++ model
+				delegate: CompostionRow {
+					value1: value
+					compName: type
+					isInput: isInput //isInput
+					isVisible: (isVisable && showComposition)
+					editMenuIndex: unitIndex
+				}
+
+//                model: compositionModel  //QML model
 //                delegate: CompostionRow {
 //                    value1: value
 //                    compName: type
-//                    isInput: isCompostionInput //isInput
+//                    isInput: isCompostionInput
 //                    isVisible: (visableComposition && showComposition)
-//                    editMenuIndex: unitIndex
-//                }
-
-                model: compositionModel  //QML model
-                delegate: CompostionRow {
-                    value1: value
-                    compName: type
-                    isInput: isCompostionInput
-                    isVisible: (visableComposition && showComposition)
-                    editMenuIndex: uiStream.editMenuIndex
-            }
+//                    editMenuIndex: uiStream.editMenuIndex
+//            }
                 Component.onCompleted: {
                 console.log("Mole comp model size is" + model.count)
             }
             }
             Repeater { // Create list of properties
                 id: propertyList
-                model: propertyModel
+				model: stream.propModel
                 //model: stream.propModel     // Would like to use C++ model
                 delegate: StreamPropertyRow {
                     value1: value
                     propName: type
-                    unitList: units
+					unitList: unitList
                     editMenuIndex: uiStream.editMenuIndex
                 }
             }
