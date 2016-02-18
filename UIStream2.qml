@@ -1,4 +1,4 @@
-import QtQuick 2.5
+import QtQuick 2.0
 import QtQuick.Controls 1.3
 import WEOS 1.0
 
@@ -29,10 +29,13 @@ Rectangle {
     border.color: "black"
     border.width: 2
     height: 250  // or less
-    width: rowTotalWidth + 2*rowSpacing
+//    width: rowTotalWidth + 2*rowSpacing
+	width: 600
     Behavior on rowTotalWidth {NumberAnimation {duration: 300}}
 
-	TStream {
+
+	TStream
+	{
 		id: stream
 
 		Component.onCompleted:
@@ -41,6 +44,7 @@ Rectangle {
 			stream.loadPropModel()
 			stream.loadCompModel()
 		}
+
 	}  // Create C++ object
     //property var cmodel: stream.compModel
 
@@ -66,7 +70,7 @@ Rectangle {
 					compName: type
 					isInput: isInput //isInput
 					isVisible: (isVisable && showComposition)
-					editMenuIndex: unitIndex
+                    editMenuIndex: uiStream.editMenuIndex
 				}
 
 //                model: compositionModel  //QML model
@@ -78,17 +82,18 @@ Rectangle {
 //                    editMenuIndex: uiStream.editMenuIndex
 //            }
                 Component.onCompleted: {
-                console.log("Mole comp model size is" + model.count)
+                //console.log("Mole comp model size is" + model.count)
             }
             }
             Repeater { // Create list of properties
                 id: propertyList
 				model: stream.propModel
-                //model: stream.propModel     // Would like to use C++ model
+//				model: propertyModel     // Would like to use C++ model
                 delegate: StreamPropertyRow {
-                    value1: value
-                    propName: type
-					unitList: unitList
+					id: idPropertyRow
+					value1: value
+					propName: type
+					unitComboBoxModel: unitList
                     editMenuIndex: uiStream.editMenuIndex
                 }
             }
@@ -166,7 +171,7 @@ Rectangle {
                     id: compUnitBox
                     width: unitWidth
                     height: rowHeight
-                    model: stream.compUnitList() //compUnits
+					model: stream.compbase.unitList //compUnits
                     onCurrentIndexChanged: stream.setCompUnitIndex(currentIndex)
                 }
                 Image {
@@ -281,7 +286,7 @@ Rectangle {
         ListElement {
             type: "P"
             value: 14.7
-            units: [
+            unitList: [
                 ListElement { text: "psig"},
                 ListElement { text: "psia"},
                 ListElement { text: "atm"},
@@ -293,7 +298,7 @@ Rectangle {
         ListElement {
             type: "T"
             value: 60.0
-            units: [
+            unitList: [
                 ListElement { text: "F"},
                 ListElement { text: "R"},
                 ListElement { text: "C"},
@@ -303,7 +308,7 @@ Rectangle {
         ListElement {
             type: "Q"
             value: 100.0
-            units: [
+            unitList: [
                 ListElement { text: "MMscfd"},
                 ListElement { text: "lb/hr"},
                 ListElement { text: "lb-mols/hr"},
@@ -313,7 +318,7 @@ Rectangle {
         ListElement {
             type: "MW"
             value: 23.42
-            units: [
+            unitList: [
                 ListElement { text: "lb/lb-mol"},
                 ListElement { text: "g/mol"},
                 ListElement { text: "kg/kmol"}
@@ -322,12 +327,12 @@ Rectangle {
         ListElement {
             type: "z"
             value: 0.83
-            units: []
+            unitList: []
         }
         ListElement {
             type: "rho"
             value: 0.3572
-            units: [
+            unitList: [
                 ListElement { text: "lb/ft^3"},
                 ListElement { text: "kg/m^3"},
                 ListElement { text: "lb/in^3"}
@@ -336,7 +341,7 @@ Rectangle {
         ListElement {
             type: "h"
             value: 127.85
-            units: [
+            unitList: [
                 ListElement { text: "Btu/lb"},
                 ListElement { text: "kJ/kg"}
             ]
@@ -344,7 +349,7 @@ Rectangle {
         ListElement {
             type: "s"
             value: 74.687
-            units: [
+            unitList: [
                 ListElement { text: "Btu/lb-F"},
                 ListElement { text: "kJ/kg-C"}
             ]
@@ -352,7 +357,7 @@ Rectangle {
         ListElement {
             type: "LHV"
             value: 5240
-            units: [
+            unitList: [
                 ListElement { text: "Btu/lb"},
                 ListElement { text: "kJ/kg"}
             ]

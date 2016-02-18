@@ -16,38 +16,38 @@ baseData& baseData::operator=(const baseData &s)
     unitIndex = s.unitIndex;
     value = s.value;
     type = s.type; tooltip = s.tooltip;
-    unitList = s.unitList;
-    return *this;
+	unitList = s.unitList;
+	return *this;
 }
 
 BaseModel::BaseModel(QObject *parent) :
-    QAbstractListModel(parent)
+	QAbstractListModel(parent)
 {
-    int i, n;
-    std::string s;
-//    TStream m_stream;
-    n = 8; //n = m_stream.get_ncomp();   // Get number of components
-    model.resize(n);
-    for (i=0; i<n; i++) {
-        s = "comp "; s+=i; //s = m_stream.get_abr(i);
-        model[i].type = QString::fromStdString(s);
-        model[i].value = 0.11; //model[i].value = m_stream.get_molfrac(i);
-    }
-    qDebug() << "BaseModel initialized";
+//    int i, n;
+//    std::string s;
+////    TStream m_stream;
+//    n = 8; //n = m_stream.get_ncomp();   // Get number of components
+//    model.resize(n);
+//    for (i=0; i<n; i++) {
+//        s = "comp "; s+=i; //s = m_stream.get_abr(i);
+//        model[i].type = QString::fromStdString(s);
+//        model[i].value = 0.11; //model[i].value = m_stream.get_molfrac(i);
+//    }
+    //qDebug() << "BaseModel initialized";
 }
 
 BaseModel::BaseModel(const BaseModel &m) : QAbstractListModel(){
-    this->model = m.model;
+	this->model = m.model;
 }
 
 int BaseModel::rowCount(const QModelIndex &parent) const
 {
-    qDebug() << "BaseModel size is " << model.size();
+    //qDebug() << "BaseModel size is " << model.size();
     return model.size();
 }
 
 BaseModel& BaseModel::operator =(const BaseModel &m) {
-    this->model = m.model;
+	this->model = m.model;
     return *this;
 }
 
@@ -61,7 +61,49 @@ QHash<int, QByteArray> BaseModel::roleNames() const {
     roles[type] = "type";
     roles[tooltip] = "tooltip";
     roles[unitList] = "unitList";
-    return roles;
+	return roles;
+}
+
+//QModelIndex BaseModel::index(int row, int column, const QModelIndex& parent) const
+//{
+//	Q_UNUSED( column )
+//	Q_UNUSED( parent );
+//	return createIndex( row, 0 );
+//}
+
+//QModelIndex BaseModel::parent(const QModelIndex& child) const
+//{
+//	Q_UNUSED( child )
+//	return QModelIndex();
+//}
+
+//int BaseModel::columnCount(const QModelIndex& parent) const
+//{
+//	Q_UNUSED( parent )
+//	return 1;
+//}
+
+void BaseModel::clear()
+{
+	int i = model.size();
+	QModelIndex indexEnd = createIndex( i, 0 );
+	QModelIndex indexBegin = createIndex( 0, 0 );
+	model.clear();
+	emit dataChanged( indexBegin, indexEnd );
+}
+
+void BaseModel::append(baseData item)
+{
+	beginInsertRows( QModelIndex(), rowCount( QModelIndex() ), rowCount( QModelIndex() ) );
+	model.append( item );
+	endInsertRows();
+	QModelIndex index = createIndex( model.size(), 0 );
+	emit dataChanged( index, index );
+}
+
+bool BaseModel::isEmpty() const
+{
+	return model.isEmpty();
 }
 
 QVariant BaseModel::data(const QModelIndex &index, int role) const{
@@ -70,12 +112,21 @@ QVariant BaseModel::data(const QModelIndex &index, int role) const{
     if(role == isVisable)  return QVariant(model[index.row()].isVisable);
     if(role == isReportable)  return QVariant(model[index.row()].isReportable);
     if(role == unitIndex)  return QVariant(model[index.row()].unitIndex);
-    if(role == value)  return QVariant(model[index.row()].value);
+	if(role == value)  return QVariant(model[index.row()].value);
     if(role == type)  return QVariant(model[index.row()].type);
-    if(role == tooltip)  return QVariant(model[index.row()].tooltip);
-    if(role == unitList)  return QVariant(model[index.row()].unitList);
+	if(role == tooltip)  return QVariant(model[index.row()].tooltip);
+    if(role == unitList)  {
+		qDebug() << "CPP HELLO!! trying to return unitList = " << model[index.row()].unitList << "undex index: " << index.row();
+		return QVariant(model[index.row()].unitList);
+    }
 
-    return QVariant();
+	return QVariant();
+}
+
+QVariant BaseModel::data(int a_iRow, int role) const
+{
+	QModelIndex index = createIndex( a_iRow, 0 );
+	return data( index, role );
 }
 
 bool BaseModel::setData(const QModelIndex& a_rIndex, const QVariant& a_rValue, int a_iRole)
@@ -101,6 +152,12 @@ bool BaseModel::setData(const QModelIndex& a_rIndex, const QVariant& a_rValue, i
 	return false;
 }
 
+bool BaseModel::setData(int a_iRow, const QVariant& a_rValue, int a_iRole)
+{
+	QModelIndex index = createIndex( a_iRow, 0 );
+	return ( setData( index, a_rValue, a_iRole ) );
+}
+
 //int UIStream::rowCount(const QModelIndex &parent) const
 //{
 //    return 3;
@@ -108,9 +165,9 @@ bool BaseModel::setData(const QModelIndex& a_rIndex, const QVariant& a_rValue, i
 //QVariant UIStream::data(const QModelIndex &index, int role) const
 //{
 //    if(!index.isValid()) return QVariant();
-//    if(role == ecompbase)  return QVariant(m_compbase->model);
-//    if(role == ecompModel)  return QVariant(m_compModel->model);
-//    if(role == epropModel)  return QVariant(m_propModel->model);
+//    if(role == ecompbase)  return QVariant(m_compbase->setData);
+//    if(role == ecompModel)  return QVariant(m_compmodel);
+//    if(role == epropModel)  return QVariant(m_propModel);
 //    return QVariant();
 //}
 //QHash<int, QByteArray> UIStream::roleNames() const
@@ -131,12 +188,12 @@ UIStream& UIStream::operator=(const UIStream &m)
     return *this;
 }
 
-UIStream::UIStream(QObject *parent) : QObject(parent), m_compbase( 0 ), m_compModel( 0 ), m_propModel( 0 )
+UIStream::UIStream(QObject *parent) : QObject(parent), m_compbase( new BaseModel(this) ), m_compModel( new BaseModel(this) ), m_propModel( new BaseModel(this) )
 {
     m_Title = "Stream title here";
-//    loadCompModel();
+//	loadCompModel();
 //	loadCompBaseModel();
-//    loadPropModel();
+//	loadPropModel();
     qDebug() << "UIStream initiated";
 }
 
@@ -179,7 +236,7 @@ UIStream::UIStream(const UIStream &s) : QObject(s.parent()), m_compbase( 0 ), m_
 void UIStream::loadCompModel()   //Functions to populate the Composition Model. Initialize only
 {
     int i, n;
-    std::string s;
+	baseData singleEntry;
     n = 8; //n = m_stream.get_ncomp();   // Get number of components
 	if ( !m_compModel )
 	{
@@ -187,12 +244,13 @@ void UIStream::loadCompModel()   //Functions to populate the Composition Model. 
 	}
 	if ( m_compModel )
 	{
-		m_compModel->model.clear();
-		m_compModel->model.resize(n);
+		m_compModel->clear();
 		for (i=0; i<n; i++) {
-			s = "comp "; s+=i; //s = m_stream.get_abr(i);
-			m_compModel->model[i].type = QString::fromStdString(s);
-			m_compModel->model[i].value = 0.11; //m_compModel->model[i].value = m_stream.get_molfrac(i);
+			singleEntry.type = "comp " + QString::number(i);
+			//singleEntry.type = QString::fromStdString( s = m_stream.get_abr(i) );
+			singleEntry.value = 0.1 * i;
+			//singleEntry.value = m_stream.get_molfrac(i);
+			m_compModel->append( singleEntry );
 		}
 		emit compModelChanged();
 	}
@@ -207,15 +265,16 @@ void UIStream::loadCompBaseModel()
 	}
 	if ( m_compbase )
 	{
-		m_compbase->model.clear();
-		m_compbase->model.resize(1);
-		m_compbase->model[0].isInput = false;
-		m_compbase->model[0].isVisable = false;
-		m_compbase->model[0].isReportable = false;
-		m_compbase->model[0].unitList << "mol frac" << "mol %" << "weight frac" << "weight %" << "lb-mol/hr" << "mols/hr" << "lb/hr" << "kg/hr";
-		m_compbase->model[0].unitIndex = 0;
-		m_compbase->model[0].value = 0;
-		emit compbaseChanged();
+		baseData singleEntry;
+		m_compbase->clear();
+		singleEntry.isInput = false;
+		singleEntry.isVisable = false;
+		singleEntry.isReportable = false;
+		singleEntry.unitList << "mol frac" << "mol %" << "weight frac" << "weight %" << "lb-mol/hr" << "mols/hr" << "lb/hr" << "kg/hr";
+		singleEntry.unitIndex = 0;
+		singleEntry.value = 0;
+		m_compbase->append( singleEntry );
+        emit compbaseChanged();
 	}
 	qDebug() << Q_FUNC_INFO << " called";
 }
@@ -230,122 +289,131 @@ void UIStream::loadPropModel()   //Functions to populate the Property Model
 	}
 	if ( m_propModel )
 	{
-		m_propModel->model.clear();
-		m_propModel->model.resize(9);
-		m_propModel->model[i].type = "P";
-		m_propModel->model[i].tooltip = "Pressure";
-		//m_propModel->model[i].value = m_stream.get_p();
-		m_propModel->model[i].value = 14.69;
-		m_propModel->model[i].unitIndex = 0;
-		m_propModel->model[i].isInput = true;
-		m_propModel->model[i].isVisable = true;
-		m_propModel->model[i].isReportable = true;
+		baseData singleEntry;
+		m_propModel->clear();
+		singleEntry.type = "P";
+		singleEntry.tooltip = "Pressure";
+		//singleEntry.value = m_stream.get_p();
+		singleEntry.value = 14.69;
+		singleEntry.unitIndex = 0;
+		singleEntry.isInput = true;
+		singleEntry.isVisable = true;
+		singleEntry.isReportable = true;
 		units << "psig" << "psia" << "atm" << "bar" << "kPa" << "inHg";
-		m_propModel->model[i].unitList = units;
+		singleEntry.unitList = units;
+		m_propModel->append( singleEntry );
 
 		units.clear();
 		i=1;
-		m_propModel->model[i].type = "T";
-		m_propModel->model[i].tooltip = "Temperature";
-		//m_propModel->model[i].value = m_stream.get_t();
-		m_propModel->model[i].value = 60.0;
-		m_propModel->model[i].unitIndex = 0;
-		m_propModel->model[i].isInput = true;
-		m_propModel->model[i].isVisable = true;
-		m_propModel->model[i].isReportable = true;
+		singleEntry.type = "T";
+		singleEntry.tooltip = "Temperature";
+		//singleEntry.value = m_stream.get_t();
+		singleEntry.value = 60.0;
+		singleEntry.unitIndex = 0;
+		singleEntry.isInput = true;
+		singleEntry.isVisable = true;
+		singleEntry.isReportable = true;
 		units << "F" << "R" << "C" << "K";
-		m_propModel->model[i].unitList = units;
+		singleEntry.unitList = units;
+		m_propModel->append( singleEntry );
 
 		units.clear();
 		i=2;
-		m_propModel->model[i].type = "Q";
-		m_propModel->model[i].tooltip = "Flow Rate";
-		//m_propModel->model[i].value = m_stream.get_qm();
-		m_propModel->model[i].value = 100;
-		m_propModel->model[i].unitIndex = 0;
-		m_propModel->model[i].isInput = true;
-		m_propModel->model[i].isVisable = true;
-		m_propModel->model[i].isReportable = true;
+		singleEntry.type = "Q";
+		singleEntry.tooltip = "Flow Rate";
+		//singleEntry.value = m_stream.get_qm();
+		singleEntry.value = 100;
+		singleEntry.unitIndex = 0;
+		singleEntry.isInput = true;
+		singleEntry.isVisable = true;
+		singleEntry.isReportable = true;
 		units << "MMscfd" << "lb/hr" << "lb-mols/hr" << "mols/hr";
-		m_propModel->model[i].unitList = units;
+		singleEntry.unitList = units;
+		m_propModel->append( singleEntry );
 
 		units.clear();
 		i=3;
-		m_propModel->model[i].type = "MW";
-		m_propModel->model[i].tooltip = "Mole Weight";
-		//m_propModel->model[i].value = m_stream.get_mw();
-		m_propModel->model[i].value = 28.4;
-		m_propModel->model[i].unitIndex = 0;
-		m_propModel->model[i].isInput = false;
-		m_propModel->model[i].isVisable = true;
-		m_propModel->model[i].isReportable = true;
+		singleEntry.type = "MW";
+		singleEntry.tooltip = "Mole Weight";
+		//singleEntry.value = m_stream.get_mw();
+		singleEntry.value = 28.4;
+		singleEntry.unitIndex = 0;
+		singleEntry.isInput = false;
+		singleEntry.isVisable = true;
+		singleEntry.isReportable = true;
 		units << "lb/lb-mol" << "g/mol" << "kg/kmol";
-		m_propModel->model[i].unitList = units;
+		singleEntry.unitList = units;
+		m_propModel->append( singleEntry );
 
 		units.clear();
 		i=4;
-		m_propModel->model[i].type = "z";
-		m_propModel->model[i].tooltip = "Compressibility Factor";
-		//m_propModel->model[i].value = m_stream.get_z();
-		m_propModel->model[i].value = 0.83;
-		m_propModel->model[i].unitIndex = 0;
-		m_propModel->model[i].isInput = false;
-		m_propModel->model[i].isVisable = true;
-		m_propModel->model[i].isReportable = true;
-		m_propModel->model[i].unitList = units;
+		singleEntry.type = "z";
+		singleEntry.tooltip = "Compressibility Factor";
+		//singleEntry.value = m_stream.get_z();
+		singleEntry.value = 0.83;
+		singleEntry.unitIndex = 0;
+		singleEntry.isInput = false;
+		singleEntry.isVisable = true;
+		singleEntry.isReportable = true;
+		singleEntry.unitList = units;
+		m_propModel->append( singleEntry );
 
 		units.clear();
 		i=5;
-		m_propModel->model[i].type = "rho";
-		m_propModel->model[i].tooltip = "Density";
-		//m_propModel->model[i].value = m_stream.get_rho();
-		m_propModel->model[i].value = 1.28;
-		m_propModel->model[i].unitIndex = 0;
-		m_propModel->model[i].isInput = false;
-		m_propModel->model[i].isVisable = true;
-		m_propModel->model[i].isReportable = true;
+		singleEntry.type = "rho";
+		singleEntry.tooltip = "Density";
+		//singleEntry.value = m_stream.get_rho();
+		singleEntry.value = 1.28;
+		singleEntry.unitIndex = 0;
+		singleEntry.isInput = false;
+		singleEntry.isVisable = true;
+		singleEntry.isReportable = true;
 		units << "lb/ft^3" << "kg/m^3" << "lb/in^3";
-		m_propModel->model[i].unitList = units;
+		singleEntry.unitList = units;
+		m_propModel->append( singleEntry );
 
 		units.clear();
 		i=6;
-		m_propModel->model[i].type = "h";
-		m_propModel->model[i].tooltip = "Enthalpy";
-		//m_propModel->model[i].value = m_stream.get_h();
-		m_propModel->model[i].value = 1230.4;
-		m_propModel->model[i].unitIndex = 0;
-		m_propModel->model[i].isInput = false;
-		m_propModel->model[i].isVisable = true;
-		m_propModel->model[i].isReportable = true;
+		singleEntry.type = "h";
+		singleEntry.tooltip = "Enthalpy";
+		//singleEntry.value = m_stream.get_h();
+		singleEntry.value = 1230.4;
+		singleEntry.unitIndex = 0;
+		singleEntry.isInput = false;
+		singleEntry.isVisable = true;
+		singleEntry.isReportable = true;
 		units << "Btu/lb" << "kJ/kg";
-		m_propModel->model[i].unitList = units;
+		singleEntry.unitList = units;
+		m_propModel->append( singleEntry );
 
 		units.clear();
 		i=7;
-		m_propModel->model[i].type = "s";
-		m_propModel->model[i].tooltip = "Entropy";
-		//m_propModel->model[i].value = m_stream.get_s();
-		m_propModel->model[i].value = 1.5678;
-		m_propModel->model[i].unitIndex = 0;
-		m_propModel->model[i].isInput = false;
-		m_propModel->model[i].isVisable = true;
-		m_propModel->model[i].isReportable = true;
+		singleEntry.type = "s";
+		singleEntry.tooltip = "Entropy";
+		//singleEntry.value = m_stream.get_s();
+		singleEntry.value = 1.5678;
+		singleEntry.unitIndex = 0;
+		singleEntry.isInput = false;
+		singleEntry.isVisable = true;
+		singleEntry.isReportable = true;
 		units << "Btu/lb-F" << "kJ/kg-C";
-		m_propModel->model[i].unitList = units;
+		singleEntry.unitList = units;
+		m_propModel->append( singleEntry );
 
 		units.clear();
 		i=8;
-		m_propModel->model[i].type = "LHV";
-		m_propModel->model[i].tooltip = "Lower Heating Value";
-		//m_propModel->model[i].value = m_stream.get_lhv();
-		m_propModel->model[i].value = 675.4;
-		m_propModel->model[i].unitIndex = 0;
-		m_propModel->model[i].isInput = false;
-		m_propModel->model[i].isVisable = true;
-		m_propModel->model[i].isReportable = true;
+		singleEntry.type = "LHV";
+		singleEntry.tooltip = "Lower Heating Value";
+		//singleEntry.value = m_stream.get_lhv();
+		singleEntry.value = 675.4;
+		singleEntry.unitIndex = 0;
+		singleEntry.isInput = false;
+		singleEntry.isVisable = true;
+		singleEntry.isReportable = true;
 		units << "Btu/lb" << "kJ/kg";
-		m_propModel->model[i].unitList = units;
+		singleEntry.unitList = units;
 
+		m_propModel->append( singleEntry );
 		emit propModelChanged();
 	}
 	qDebug() << Q_FUNC_INFO << " called";
@@ -355,10 +423,10 @@ void UIStream::UItoEngine()      //Send data from UI Model to Engine
 {
 //    int i, n = m_stream.get_ncomp();
 //    if (m_compbase->isInput) for (i=0; i<n; i++) {  // Loop through Composition setting the stream
-//        m_stream.set_molfrac(i, m_compModel->model[i].value);
+//        m_stream.set_molfrac(i, m_compModel->setData[i].value);
 //    }
-//    for (i=0; i<9; i++) if (m_propModel->model[i].isInput) { // Send inputs to Engine
-//        unitConversion_UI2E(m_propModel->model[i].type, m_propModel->model[i].value, m_propModel->model[i].unitIndex);
+//    for (i=0; i<9; i++) if (singleEntry.isInput) { // Send inputs to Engine
+//        unitConversion_UI2E(singleEntry.type, singleEntry.value, singleEntry.unitIndex);
 //    }
 }
 
@@ -366,12 +434,12 @@ void UIStream::EnginetoUI()      //Update UI from Engine
 {
 //    int i, n = m_stream.get_ncomp();
 //    if (!m_compbase->isInput) for (i=0; i<n; i++) {  // Loop through Composition setting the stream
-//        m_compModel->model[i].value = m_stream.get_molfrac(i);
+//        m_compModel->setData[i].value = m_stream.get_molfrac(i);
 //    }
 //    double uivalue;
-//    for (i=0; i<9; i++) if (!m_propModel->model[i].isInput) { // Get Engine Data if not input
-//        uivalue = unitConversion_E2UI(m_propModel->model[i].type, m_propModel->model[i].unitIndex);
-//        m_propModel->model[i].value = uivalue;
+//    for (i=0; i<9; i++) if (!singleEntry.isInput) { // Get Engine Data if not input
+//        uivalue = unitConversion_E2UI(singleEntry.type, singleEntry.unitIndex);
+//        singleEntry.value = uivalue;
 //    }
 }
 
@@ -539,10 +607,6 @@ void UIStream::setCompbase(BaseModel* model) {
 }
 
 BaseModel* UIStream::compModel() {
-	if ( m_compModel )
-	{
-		qDebug() << "sent compModel.  Size here is " << m_compModel->model.size();
-	}
 	return m_compModel;
 }
 void UIStream::setCompModel(BaseModel* model) {
@@ -557,7 +621,9 @@ void UIStream::setCompModel(BaseModel* model) {
 	}
 }
 
-BaseModel* UIStream::propModel() const { return m_propModel; }
+BaseModel* UIStream::propModel() const {
+    return m_propModel;
+}
 void UIStream::setPropModel(BaseModel* model){
 	if ( model )
 	{
@@ -579,5 +645,23 @@ void UIStream::setTitle(const QString &string){
 	}
 }
 
-QStringList UIStream::compUnitList() { if ( m_compbase && !m_compbase->model.isEmpty() ) return m_compbase->model[0].unitList; else return QStringList(); }
-void UIStream::setCompUnitIndex(int i) { if ( m_compbase && !m_compbase->model.isEmpty() ) m_compbase->model[0].unitIndex = i;  emit compbaseChanged(); }
+QStringList UIStream::compUnitList() {
+	if ( m_compbase && !m_compbase->isEmpty() ) {
+		qDebug() << "trying to return unit list";
+		return m_compbase->data( 0, BaseModel::unitList ).toStringList();
+    }
+    else {
+		qDebug() << "compUnitList not returning anything?";
+//        qDebug() << "m_compbase is " << (m_compbase ? "true" : "false");
+        return QStringList();
+    }
+}
+
+void UIStream::setCompUnitIndex(int i)
+{
+	if ( m_compbase && !m_compbase->isEmpty() )
+	{
+		m_compbase->setData( 0, QVariant( i ), BaseModel::unitList );
+		emit compbaseChanged();
+	}
+}

@@ -21,8 +21,8 @@ Rectangle {
 
     property double value1: 0
     property alias propName: propType.text
-    property alias unitList: unitCB.model
-    property bool showUnitBox: unitList.count > 0
+	property alias unitComboBoxModel: unitCB.model
+	property bool showUnitBox: unitComboBoxModel.count > 0
     signal inputChanged(double valueSet)
     signal unitChanged(int unitSet)
 
@@ -66,8 +66,10 @@ Rectangle {
             width: unitWidth
             height: rowHeight
 //            opacity: (model.count>0) ? 1 : 0
-            visible: showUnitBox //(model.count>0)
+//            visible: showUnitBox //(model.count>0)
+			visible: true
             onCurrentIndexChanged: { propRec.unitChanged(currentIndex) }
+			onModelChanged: { console.log( "Model Changed..." + model ) }
         }
         Image {
             id: menuPic

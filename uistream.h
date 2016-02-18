@@ -13,14 +13,6 @@
 #include <Qt>
 #include <deque>
 
-//struct baseData {   // base data for most models
-//    bool isInput, isVisable, isReportable;
-//    int unitIndex;
-//    double value;
-//    QString type, tooltip;
-//    QStringList unitList;
-//};
-
 class baseData : public QObject {   // base data for most models
     Q_OBJECT
 public:
@@ -33,7 +25,7 @@ public:
     int unitIndex;
     double value;
     QString type, tooltip;
-    QStringList unitList;
+	QStringList unitList;
 };
 
 class BaseModel : public QAbstractListModel{
@@ -52,16 +44,24 @@ public:
     explicit BaseModel(QObject *parent = 0);
     virtual int rowCount(const QModelIndex &parent) const;
     virtual QVariant data(const QModelIndex &index, int role) const;
+	virtual QVariant data(int a_iRow, int role) const;
 	bool setData( const QModelIndex& a_rIndex, const QVariant& a_rValue, int a_iRole );
+	bool setData( int a_iRow, const QVariant& a_rValue, int a_iRole );
     QHash<int, QByteArray> roleNames() const;
 
+//	// qabstractitemmodel subclass begin
+//	virtual QModelIndex index(int row, int column, const QModelIndex &parent) const;
+//	virtual QModelIndex parent(const QModelIndex &child) const;
+//	virtual int columnCount(const QModelIndex &parent) const;
+//	// qabstractitemmodel subclass end
+	void clear();
+	void append( baseData item );
+	bool isEmpty() const;
     BaseModel(const BaseModel &m);
     BaseModel& operator =(const BaseModel &m);
 
-public:
-//    vector<baseData> model;
+private:
     QVector<baseData> model;
-//    std::deque<baseData> model;
 };
 
 class UIStream : public QObject
@@ -83,11 +83,6 @@ public:
     QString m_Title;
 
     UIStream& operator=(const UIStream &m);
-    enum UIStreamRoles {
-        ecompbase = Qt::UserRole +1,
-        ecompModel,
-        epropModel
-    };
 
 	Q_INVOKABLE void loadCompModel();   //Functions to populate the Composition Model
 	Q_INVOKABLE void loadCompBaseModel();	//Functions to populate the composition base model
@@ -106,8 +101,8 @@ public:
     QString title() const;
     void setTitle(const QString &string);
 
-    Q_INVOKABLE QStringList compUnitList();
-    Q_INVOKABLE void setCompUnitIndex(int i);
+	QStringList compUnitList();
+	Q_INVOKABLE void setCompUnitIndex(int i);
 
 private:
 

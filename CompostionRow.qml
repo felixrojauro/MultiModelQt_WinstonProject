@@ -34,7 +34,7 @@ Rectangle {
     Row {
         id: compRow
         spacing: rowSpacing
-        height: rowHeight
+        height: compRec.height - 4
         x:2; y:2
         TextInput {
             id: compValue1
